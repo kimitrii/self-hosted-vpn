@@ -1,11 +1,16 @@
 #!/bin/bash
 dnf update && dnf upgrade -y
 
-dnf install wireguard-tools iptables -y
+dnf install wireguard-tools iptables cronie -y
 
-cd /etc/wireguard/
+# Sets up a scheduled task to update and upgrade packages weekly
+systemctl start crond
+systemctl enable crond
+echo "0 0 * * 6 /usr/bin/dnf update -y && /usr/bin/dnf upgrade -y" > cronupdateweekly
+crontab cronupdateweekly
 
 # Save keys to files
+cd /etc/wireguard/
 echo $SERVER_PRIVATE_KEY > /etc/wireguard/serverprivatekey
 echo $CLIENT_PUBLIC_KEY > /etc/wireguard/clientpublickey
 echo $CLIENT_PRESHARED_KEY > /etc/wireguard/clientpresharedkey
