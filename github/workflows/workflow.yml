@@ -1,0 +1,39 @@
+name: Complete Workflow
+
+on:
+  
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    name: Build Terraform Infra
+    needs: [tests]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with: 
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.VPN_ZONE }}
+
+      - name: Run Terraform
+        run: |
+          cd terraform
+          terraform init
+          terraform apply -auto-approve \
+           -var="SERVER_PRIVATE_KEY=${{ secrets.SERVER_PRIVATE_KEY }}" \
+           -var="CLIENT_PUBLIC_KEY=${{ secrets.CLIENT_PUBLIC_KEY }}" \
+           -var="CLIENT_PRESHARED_KEY=${{ secrets.CLIENT_PRESHARED_KEY }}" \
+           -var="VPN_PUBLIC_KEYPAIR=${{ secrets.VPN_PUBLIC_KEYPAIR }}" \
+           -var="EC2_TYPE=${{ secrets.EC2_TYPE }}" \
+           -var="VPN_ZONE=${{ secrets.VPN_ZONE }}" \
+           -var="EC2_AV_ZONE=${{ secrets.EC2_AV_ZONE }}"
