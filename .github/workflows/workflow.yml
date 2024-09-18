@@ -5,14 +5,10 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
   terraform:
     name: Build Terraform Infra
-    needs: [tests]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
