@@ -1,11 +1,8 @@
 name: Complete Workflow
 
 on:
+  workflow_dispatch:
   
-  push:
-    branches:
-      - main
-
 jobs:
   terraform:
     name: Build Terraform Infra
